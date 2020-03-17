@@ -10,18 +10,25 @@ type ChainAuthenticator struct {
 	providers []Provider
 }
 
-func (c *ChainAuthenticator) Authenticate(token security.Token) (authenticatedToken security.Token, err error) {
+func (c *ChainAuthenticator) Authenticate(token security.Token) (security.Token, error) {
+	var authenticatedToken security.Token
+	var err error
+
 	for _, authenticator := range c.providers {
-		if authenticator.Support(token) {
-			authenticatedToken, err = authenticator.Authenticate(token)
-			if err == nil {
-				return
-			}
+		if !authenticator.Support(token) {
+			continue
+		}
+
+		authenticatedToken, err = authenticator.Authenticate(token)
+		if err == nil {
+			return authenticatedToken, nil
 		}
 	}
+
 	if err != nil {
-		return
+		return nil, err
 	}
+
 	return nil, errors.New("no authentication provider found")
 }
 

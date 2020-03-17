@@ -6,5 +6,5 @@ import (
 )
 
 type UserPasswordTokenChecker interface {
-	CheckAuthentication(user security.User, t *token.UserPassword) error
+	CheckAuthentication(user security.UserPassword, t *token.UserPassword) error
 }

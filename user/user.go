@@ -7,3 +7,7 @@ type User struct {
 func (u *User) GetUsername() string {
 	return u.username
 }
+
+func NewUser(username string) *User {
+	return &User{username}
+}

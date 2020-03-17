@@ -11,7 +11,7 @@ type UserPassword struct {
 	encoder security.PasswordEncoder
 }
 
-func (u *UserPassword) CheckAuthentication(user security.User, t *token.UserPassword) error {
+func (u *UserPassword) CheckAuthentication(user security.UserPassword, t *token.UserPassword) error {
 	if user.GetUsername() != t.GetUsername() {
 		return errors.New("username not match")
 	}

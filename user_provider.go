@@ -5,4 +5,3 @@ type UserProvider interface {
 	//RefreshUser(user *User) error
 	//SupportsClass(user *User) bool
 }
-
