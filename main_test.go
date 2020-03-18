@@ -13,7 +13,6 @@ import (
 	"github.com/gol4ng/security/pkg/user_password"
 	"github.com/gol4ng/security/pkg/user_password/password_encoder"
 	"github.com/gol4ng/security/pkg/user_password/token_checker"
-	"github.com/gol4ng/security/token"
 	"github.com/gol4ng/security/user_provider"
 	"github.com/stretchr/testify/assert"
 )
@@ -70,7 +69,7 @@ func Test_JWTLogin(t *testing.T) {
 }
 
 func Test_AnonymousLogin(t *testing.T) {
-	userToken := token.NewAnonymous("fake_secret")
+	userToken := anonymous.NewToken("fake_secret")
 	authToken, err := getAuthenticator().Authenticate(userToken)
 
 	assert.True(t, authToken.IsAuthenticated())
@@ -79,7 +78,7 @@ func Test_AnonymousLogin(t *testing.T) {
 
 func Test_UserPasswordLogin(t *testing.T) {
 	t.Run("User login", func(t *testing.T) {
-		userToken := token.NewUserPassword("james", "bond")
+		userToken := user_password.NewToken("james", "bond")
 		authToken, err := getAuthenticator().Authenticate(userToken)
 
 		assert.True(t, authToken.IsAuthenticated())
@@ -87,7 +86,7 @@ func Test_UserPasswordLogin(t *testing.T) {
 	})
 
 	t.Run("User login with wrong credential", func(t *testing.T) {
-		userToken := token.NewUserPassword("james", "bad_password")
+		userToken := user_password.NewToken("james", "bad_password")
 		authToken, err := getAuthenticator().Authenticate(userToken)
 		assert.Nil(t, authToken)
 		assert.EqualError(t, err, "bad credential")

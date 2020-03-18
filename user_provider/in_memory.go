@@ -10,18 +10,18 @@ type InMemory struct {
 	users map[string]security.User
 }
 
-func (p *InMemory) LoadUserByUsername(username string) (security.User, error) {
-	if u, ok := p.users[username]; ok {
+func (i *InMemory) LoadUserByUsername(username string) (security.User, error) {
+	if u, ok := i.users[username]; ok {
 		return u, nil
 	}
 	return nil, errors.New("user not found")
 }
 
-func (p *InMemory) RefreshUser(user security.User) error {
+func (i *InMemory) RefreshUser(user security.User) error {
 	return nil
 }
 
-func (p *InMemory) SupportsClass(user security.User) bool {
+func (i *InMemory) SupportsClass(user security.User) bool {
 	return true
 }
 

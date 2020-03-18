@@ -6,7 +6,7 @@ import (
 )
 
 type Token struct {
-	security_token.Base
+	security_token.Token
 
 	token  string
 	claims jwt.Claims

@@ -43,18 +43,21 @@ func (a *Authenticator) Support(t security.Token) bool {
 	return support
 }
 
+func (a *Authenticator) apply(options ...AuthenticatorOption) *Authenticator {
+	for _, option := range options {
+		option(a)
+	}
+	return a
+}
+
 // AuthOption defines a interceptor middleware configuration option
 type AuthenticatorOption func(*Authenticator)
 
 func NewAuthenticator(parser Parser, options ...AuthenticatorOption) *Authenticator {
-	authenticator := &Authenticator{
+	return (&Authenticator{
 		parser:         parser,
 		usernameGetter: DefaultUsernameGetter,
-	}
-	for _, option := range options {
-		option(authenticator)
-	}
-	return authenticator
+	}).apply(options...)
 }
 
 func WithUsernameGetter(getter UsernameGetter) AuthenticatorOption {
