@@ -8,7 +8,7 @@ import (
 type Token struct {
 	security_token.Base
 
-	token string
+	token  string
 	claims jwt.Claims
 }
 
@@ -16,7 +16,7 @@ func (t *Token) GetToken() string {
 	return t.token
 }
 
-func (t *Token) SetClaims(claims jwt.Claims)  {
+func (t *Token) SetClaims(claims jwt.Claims) {
 	t.claims = claims
 }
 

@@ -7,14 +7,14 @@ import (
 )
 
 type ChainAuthenticator struct {
-	providers []Provider
+	authenticators []security.Authenticator
 }
 
 func (c *ChainAuthenticator) Authenticate(token security.Token) (security.Token, error) {
 	var authenticatedToken security.Token
 	var err error
 
-	for _, authenticator := range c.providers {
+	for _, authenticator := range c.authenticators {
 		if !authenticator.Support(token) {
 			continue
 		}
@@ -32,8 +32,17 @@ func (c *ChainAuthenticator) Authenticate(token security.Token) (security.Token,
 	return nil, errors.New("no authentication provider found")
 }
 
-func NewChainAuthenticator(providers ...Provider) *ChainAuthenticator {
+func (c *ChainAuthenticator) Support(token security.Token) bool {
+	for _, authenticator := range c.authenticators {
+		if authenticator.Support(token) {
+			return true
+		}
+	}
+	return false
+}
+
+func NewChainAuthenticator(providers ...security.Authenticator) *ChainAuthenticator {
 	return &ChainAuthenticator{
-		providers: providers,
+		authenticators: providers,
 	}
 }

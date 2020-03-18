@@ -1,4 +1,4 @@
-package provider
+package anonymous
 
 import (
 	"errors"
@@ -7,10 +7,10 @@ import (
 	"github.com/gol4ng/security/token"
 )
 
-type AnonymousAccess struct {
+type Authenticator struct {
 }
 
-func (o *AnonymousAccess) Authenticate(t security.Token) (security.Token, error) {
+func (o *Authenticator) Authenticate(t security.Token) (security.Token, error) {
 	anonymousToken, ok := t.(*token.Anonymous)
 	if !ok {
 		return t, errors.New("token type not supported")
@@ -21,7 +21,11 @@ func (o *AnonymousAccess) Authenticate(t security.Token) (security.Token, error)
 	return anonymousToken, nil
 }
 
-func (o *AnonymousAccess) Support(t security.Token) bool {
+func (o *Authenticator) Support(t security.Token) bool {
 	_, support := t.(*token.Anonymous)
 	return support
+}
+
+func NewAuthenticator() *Authenticator {
+	return &Authenticator{}
 }

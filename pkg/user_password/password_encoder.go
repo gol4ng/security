@@ -1,4 +1,4 @@
-package security
+package user_password
 
 type PasswordEncoder interface {
 	EncodePassword(raw string, salt string) string

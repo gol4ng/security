@@ -10,19 +10,18 @@ import (
 
 var ErrAuthenticationFailed = errors.New("authentication failed")
 
-type JWTAuthenticator struct {
-	Parser         Parser
+type Authenticator struct {
+	parser         Parser
 	usernameGetter UsernameGetter
 }
 
-
-func (a JWTAuthenticator) Authenticate(t security.Token) (authenticatedToken security.Token, err error) {
+func (a Authenticator) Authenticate(t security.Token) (authenticatedToken security.Token, err error) {
 	jwtToken, ok := t.(*Token)
 	if !ok {
 		return t, errors.New("token type not supported")
 	}
 
-	claims, err := a.Parser.GetClaims(jwtToken.GetToken())
+	claims, err := a.parser.GetClaims(jwtToken.GetToken())
 	if err != nil {
 		return t, ErrAuthenticationFailed
 	}
@@ -39,20 +38,29 @@ func (a JWTAuthenticator) Authenticate(t security.Token) (authenticatedToken sec
 	return jwtToken, nil
 }
 
-func (a *JWTAuthenticator) Support(t security.Token) bool {
+func (a *Authenticator) Support(t security.Token) bool {
 	_, support := t.(*Token)
 	return support
 }
 
-func NewJWTAuthenticator(parser Parser, usernameGetter UsernameGetter) *JWTAuthenticator {
-	return &JWTAuthenticator{
-		Parser: parser,
-		usernameGetter: usernameGetter,
+// AuthOption defines a interceptor middleware configuration option
+type AuthenticatorOption func(*Authenticator)
+
+func NewAuthenticator(parser Parser, options ...AuthenticatorOption) *Authenticator {
+	authenticator := &Authenticator{
+		parser:         parser,
+		usernameGetter: DefaultUsernameGetter,
 	}
+	for _, option := range options {
+		option(authenticator)
+	}
+	return authenticator
 }
 
-func NewDefaultJWTAuthenticator(parser Parser) *JWTAuthenticator {
-	return NewJWTAuthenticator(parser, DefaultUsernameGetter)
+func WithUsernameGetter(getter UsernameGetter) AuthenticatorOption {
+	return func(authenticator *Authenticator) {
+		authenticator.usernameGetter = getter
+	}
 }
 
 type UsernameGetter func(claims jwt.Claims) string

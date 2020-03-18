@@ -1,4 +1,4 @@
-package provider
+package user_password
 
 import (
 	"errors"
@@ -7,19 +7,19 @@ import (
 	"github.com/gol4ng/security/token"
 )
 
-type UserPassword struct {
+type Authenticator struct {
 	userProvider             security.UserProvider
-	userPasswordTokenChecker UserPasswordTokenChecker
+	userPasswordTokenChecker TokenChecker
 }
 
-func (o *UserPassword) Authenticate(t security.Token) (security.Token, error) {
+func (o *Authenticator) Authenticate(t security.Token) (security.Token, error) {
 	userPasswordToken, ok := t.(*token.UserPassword)
 	if !ok {
 		return t, errors.New("token type not supported")
 	}
 
 	user, err := o.userProvider.LoadUserByUsername(userPasswordToken.GetUsername())
-	userPassword, ok := user.(security.UserPassword)
+	userPassword, ok := user.(UserPassword)
 	if !ok {
 		return t, errors.New("user type not supported")
 	}
@@ -37,13 +37,13 @@ func (o *UserPassword) Authenticate(t security.Token) (security.Token, error) {
 	return userPasswordToken, nil
 }
 
-func (o *UserPassword) Support(t security.Token) bool {
+func (o *Authenticator) Support(t security.Token) bool {
 	_, support := t.(*token.UserPassword)
 	return support
 }
 
-func NewUserPassword(provider security.UserProvider, checker UserPasswordTokenChecker) *UserPassword {
-	return &UserPassword{
+func NewAuthenticator(provider security.UserProvider, checker TokenChecker) *Authenticator {
+	return &Authenticator{
 		userProvider:             provider,
 		userPasswordTokenChecker: checker,
 	}

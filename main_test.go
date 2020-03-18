@@ -8,12 +8,12 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gol4ng/security"
 	"github.com/gol4ng/security/authentication"
-	"github.com/gol4ng/security/authentication/provider"
-	"github.com/gol4ng/security/authentication/provider/token_checker"
-	"github.com/gol4ng/security/password_encoder"
+	"github.com/gol4ng/security/pkg/anonymous"
 	security_jwt "github.com/gol4ng/security/pkg/jwt"
+	"github.com/gol4ng/security/pkg/user_password"
+	"github.com/gol4ng/security/pkg/user_password/password_encoder"
+	"github.com/gol4ng/security/pkg/user_password/token_checker"
 	"github.com/gol4ng/security/token"
-	"github.com/gol4ng/security/user"
 	"github.com/gol4ng/security/user_provider"
 	"github.com/stretchr/testify/assert"
 )
@@ -30,35 +30,43 @@ func getToken() string {
 	return ss
 }
 
-func getAuthenticator() authentication.Authenticator {
+func getAuthenticator() security.Authenticator {
 	encoder := password_encoder.NewHash(crypto.MD5)
 	userPasswordTokenChecker := token_checker.NewUserPassword(encoder)
 
 	salt := "kLmqshuNoxal"
 	userProvider := user_provider.NewInMemory(map[string]security.User{
-		"james": user.NewUserPassword("james", encoder.EncodePassword("bond", salt), salt),
+		"james": user_password.NewUser("james", encoder.EncodePassword("bond", salt), salt),
 	})
 
 	return authentication.NewChainAuthenticator(
-		&provider.AnonymousAccess{},
-		provider.NewUserPassword(userProvider, userPasswordTokenChecker),
-		security_jwt.NewDefaultJWTAuthenticator(security_jwt.NewParserWithECDSA(JWTKey)),
+		anonymous.NewAuthenticator(),
+		user_password.NewAuthenticator(userProvider, userPasswordTokenChecker),
+		security_jwt.NewAuthenticator(security_jwt.NewParserWithECDSA(JWTKey)),
 	)
 }
 
 func Test_JWTLogin(t *testing.T) {
-	jwtToken := security_jwt.NewToken(getToken())
+	authenticator := getAuthenticator()
+	t.Run("JWT login", func(t *testing.T) {
+		jwtToken := security_jwt.NewToken(getToken())
+		authToken, err := authenticator.Authenticate(jwtToken)
+		assert.True(t, authToken.IsAuthenticated())
+		assert.NoError(t, err)
 
-	authToken, err := getAuthenticator().Authenticate(jwtToken)
+		jwtToken, ok := authToken.(*security_jwt.Token)
+		assert.True(t, ok)
 
-	assert.True(t, authToken.IsAuthenticated())
-	assert.NoError(t, err)
+		claims := jwtToken.GetClaims().(jwt.MapClaims)
+		assert.Equal(t, "JamesBond007", claims["sub"])
+	})
 
-	jwtToken, ok := authToken.(*security_jwt.Token)
-	assert.True(t, ok)
-
-	claims := jwtToken.GetClaims().(jwt.MapClaims)
-	assert.Equal(t, "JamesBond007", claims["sub"])
+	t.Run("JWT invalid login", func(t *testing.T) {
+		jwtToken := security_jwt.NewToken("my_invalid-token")
+		authToken, err := authenticator.Authenticate(jwtToken)
+		assert.Nil(t, authToken)
+		assert.EqualError(t, err, "authentication failed")
+	})
 }
 
 func Test_AnonymousLogin(t *testing.T) {
