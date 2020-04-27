@@ -8,24 +8,19 @@ import (
 type Token struct {
 	security_token.Token
 
-	token  string
-	claims jwt.Claims
+	jwtToken *jwt.Token
 }
 
-func (t *Token) GetToken() string {
-	return t.token
-}
-
-func (t *Token) SetClaims(claims jwt.Claims) {
-	t.claims = claims
+func (t *Token) GetJWTToken() *jwt.Token {
+	return t.jwtToken
 }
 
 func (t *Token) GetClaims() jwt.Claims {
-	return t.claims
+	return t.jwtToken.Claims
 }
 
-func NewToken(token string) *Token {
+func NewToken(jwtToken *jwt.Token) *Token {
 	return &Token{
-		token: token,
+		jwtToken: jwtToken,
 	}
 }

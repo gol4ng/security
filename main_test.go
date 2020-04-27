@@ -34,8 +34,9 @@ func getAuthenticator() security.Authenticator {
 	userPasswordTokenChecker := token_checker.NewUserPassword(encoder)
 
 	salt := "kLmqshuNoxal"
+	pass, _ := encoder.EncodePassword("bond", salt)
 	userProvider := user_provider.NewInMemory(map[string]security.User{
-		"james": user_password.NewUser("james", encoder.EncodePassword("bond", salt), salt),
+		"james": user_password.NewUser("james", pass, salt),
 	})
 
 	return authentication.NewChainAuthenticator(

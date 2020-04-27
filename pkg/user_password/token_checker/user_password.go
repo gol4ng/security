@@ -2,6 +2,7 @@ package token_checker
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/gol4ng/security/pkg/user_password"
 )
@@ -14,7 +15,10 @@ func (u *UserPassword) CheckAuthentication(user user_password.UserPassword, t us
 	if user.GetUsername() != t.GetUsername() {
 		return errors.New("username not match")
 	}
-	if !u.encoder.IsPasswordValid(user.GetPassword(), t.GetPassword(), user.GetSalt()) {
+
+	if isValid, err := u.encoder.IsPasswordValid(user.GetPassword(), t.GetPassword(), user.GetSalt()); err != nil {
+		return fmt.Errorf("bad credential: %w", err)
+	} else if !isValid {
 		return errors.New("bad credential")
 	}
 	return nil

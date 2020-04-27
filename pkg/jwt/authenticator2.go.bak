@@ -1,11 +1,11 @@
 package jwt
 
 import (
+	"encoding/base64"
 	"errors"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gol4ng/security"
-	"github.com/gol4ng/security/token"
 	"github.com/gol4ng/security/user"
 )
 
@@ -17,35 +17,40 @@ type Authenticator struct {
 }
 
 func (a Authenticator) Authenticate(t security.Token) (security.Token, error) {
-	var outputToken *Token
-	rawToken, ok := t.(*token.RawToken)
+	var token *Token
+	rawToken, ok := t.(*RawToken)
 	if !ok {
 		return t, errors.New("token type not supported")
 	}
 
-	jwtToken, err := a.parser.Parse(rawToken.GetRaw())
-	outputToken = NewToken(jwtToken)
+	decodedToken, err := base64.StdEncoding.DecodeString(rawToken.GetRaw())
 	if err != nil {
-		return outputToken, err
+		return t, err
+	}
+
+	jwtToken, err := a.parser.Parse(string(decodedToken))
+	token = NewToken(jwtToken)
+	if err != nil {
+		return token, err
 	}
 
 	if !jwtToken.Valid {
-		return outputToken, ErrAuthenticationFailed
+		return token, ErrAuthenticationFailed
 	}
 
 	username := a.usernameGetter(jwtToken.Claims)
 	if username == "" {
-		return outputToken, errors.New("username not found")
+		return token, errors.New("username not found")
 	}
 
-	outputToken.SetUser(user.NewUser(username))
-	outputToken.SetAuthenticated(true)
+	token.SetUser(user.NewUser(username))
+	token.SetAuthenticated(true)
 
-	return outputToken, nil
+	return token, nil
 }
 
 func (a *Authenticator) Support(t security.Token) bool {
-	_, support := t.(*token.RawToken)
+	_, support := t.(*RawToken)
 	return support
 }
 
