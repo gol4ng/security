@@ -9,7 +9,10 @@ import (
 	"github.com/gol4ng/security/user"
 )
 
-var ErrAuthenticationFailed = errors.New("authentication failed")
+var (
+	ErrUsernameNotFound = errors.New("username not found")
+	ErrInvalidTokenJWT  = errors.New("invalid JWT Token")
+)
 
 type Authenticator struct {
 	parser         Parser
@@ -20,7 +23,7 @@ func (a Authenticator) Authenticate(t security.Token) (security.Token, error) {
 	var outputToken *Token
 	rawToken, ok := t.(*token.RawToken)
 	if !ok {
-		return t, errors.New("token type not supported")
+		return t, security.ErrTokenTypeNotSupported
 	}
 
 	jwtToken, err := a.parser.Parse(rawToken.GetRaw())
@@ -30,12 +33,12 @@ func (a Authenticator) Authenticate(t security.Token) (security.Token, error) {
 	}
 
 	if !jwtToken.Valid {
-		return outputToken, ErrAuthenticationFailed
+		return outputToken, ErrInvalidTokenJWT
 	}
 
 	username := a.usernameGetter(jwtToken.Claims)
 	if username == "" {
-		return outputToken, errors.New("username not found")
+		return outputToken, ErrUsernameNotFound
 	}
 
 	outputToken.SetUser(user.NewUser(username))

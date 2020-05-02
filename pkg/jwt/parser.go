@@ -17,19 +17,6 @@ type ParserWithPublicKey struct {
 	SkipClaimsValidation bool
 }
 
-type Option func(*ParserWithPublicKey)
-
-func NewParser(options ...Option) Parser {
-	parser := &ParserWithPublicKey{
-		signingKeys:  map[string]interface{}{},
-		validMethods: []string{},
-	}
-	for _, o := range options {
-		o(parser)
-	}
-	return parser
-}
-
 func (p ParserWithPublicKey) Parse(token string) (*jwt.Token, error) {
 	parser := jwt.Parser{
 		ValidMethods:         p.validMethods,
@@ -48,6 +35,19 @@ func (p ParserWithPublicKey) keyFunc(token *jwt.Token) (interface{}, error) {
 	}
 	return key, nil
 }
+
+func NewParser(options ...Option) Parser {
+	parser := &ParserWithPublicKey{
+		signingKeys:  map[string]interface{}{},
+		validMethods: []string{},
+	}
+	for _, o := range options {
+		o(parser)
+	}
+	return parser
+}
+
+type Option func(*ParserWithPublicKey)
 
 func WithSigningKey(name string, key interface{}) Option {
 	return func(parser *ParserWithPublicKey) {

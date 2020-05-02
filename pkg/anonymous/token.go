@@ -7,12 +7,10 @@ import (
 
 type Token struct {
 	security.Token
-	secret string
 }
 
-func NewToken(secret string) *Token {
+func NewToken() *Token {
 	return &Token{
-		Token:  &token.Token{},
-		secret: secret,
+		Token: &token.Token{},
 	}
 }

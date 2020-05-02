@@ -7,7 +7,9 @@ import (
 	"golang.org/x/oauth2"
 )
 
-var ErrAuthenticationFailed = errors.New("authentication failed")
+var (
+	ErrAuthenticationFailed = errors.New("authentication failed")
+)
 
 type Authenticator struct {
 	userProvider UserProvider
@@ -16,7 +18,7 @@ type Authenticator struct {
 func (a Authenticator) Authenticate(t security.Token) (authenticatedToken security.Token, err error) {
 	token, ok := t.(*Token)
 	if !ok {
-		return t, errors.New("token type not supported")
+		return t, security.ErrTokenTypeNotSupported
 	}
 
 	oauth2Token := token.GetToken()
@@ -50,6 +52,8 @@ func (a *Authenticator) apply(options ...AuthenticatorOption) *Authenticator {
 // AuthOption defines a interceptor middleware configuration option
 type AuthenticatorOption func(*Authenticator)
 
+type UserProvider func(oauth2Token *oauth2.Token) (security.User, error)
+
 func NewAuthenticator(options ...AuthenticatorOption) *Authenticator {
 	return (&Authenticator{
 		userProvider: DefaultUserProvider,
@@ -61,8 +65,6 @@ func WithUserGetter(getter UserProvider) AuthenticatorOption {
 		authenticator.userProvider = getter
 	}
 }
-
-type UserProvider func(oauth2Token *oauth2.Token) (security.User, error)
 
 func DefaultUserProvider(_ *oauth2.Token) (security.User, error) {
 	return nil, nil

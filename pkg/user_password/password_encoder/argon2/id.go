@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 
+	"github.com/gol4ng/security/pkg/user_password/password_encoder"
 	"golang.org/x/crypto/argon2"
 )
 
@@ -37,7 +38,7 @@ func CompareIDPasswordAndHash(hashedPassword []byte, password []byte) error {
 	}
 
 	if subtle.ConstantTimeCompare(hash, argon2.IDKey(password, salt, p.iterations, p.memory, p.parallelism, p.keyLength)) != 1 {
-		return errMismatchedHashAndPassword
+		return password_encoder.ErrMismatchedHashAndPassword
 	}
 	return nil
 }

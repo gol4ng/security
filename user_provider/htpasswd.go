@@ -1,8 +1,6 @@
 package user_provider
 
 import (
-	"errors"
-
 	"github.com/gol4ng/security"
 	"github.com/gol4ng/security/pkg/user_password"
 	"github.com/gol4ng/security/user_provider/file"
@@ -28,15 +26,7 @@ func (i *Htpasswd) LoadUserByUsername(username string) (security.User, error) {
 	if password, ok := users[username]; ok {
 		return user_password.NewUser(username, password, ""), nil
 	}
-	return nil, errors.New("user not found")
-}
-
-func (i *Htpasswd) RefreshUser(user security.User) error {
-	return nil
-}
-
-func (i *Htpasswd) SupportsClass(user security.User) bool {
-	return true
+	return nil, security.ErrUserNotFound
 }
 
 func NewHtpasswd(filename string) *Htpasswd {

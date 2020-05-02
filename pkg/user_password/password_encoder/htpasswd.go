@@ -1,7 +1,6 @@
 package password_encoder
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/gol4ng/security/pkg/user_password/password_encoder/apache"
@@ -10,8 +9,6 @@ import (
 )
 
 //https://httpd.apache.org/docs/2.4/misc/password_encryptions.html
-var errMismatchedHashAndPassword = errors.New("mismatched hash and password")
-
 type Htpasswd struct {
 }
 

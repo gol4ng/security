@@ -3,6 +3,8 @@ package security_test
 import (
 	"crypto"
 	_ "crypto/md5"
+	"crypto/rand"
+	"errors"
 	"testing"
 
 	"github.com/dgrijalva/jwt-go"
@@ -42,7 +44,7 @@ func getAuthenticator() security.Authenticator {
 	return authentication.NewChainAuthenticator(
 		anonymous.NewAuthenticator(),
 		user_password.NewAuthenticator(userProvider, userPasswordTokenChecker),
-		security_jwt.NewAuthenticator(security_jwt.NewParserWithECDSA(JWTKey)),
+		security_jwt.NewAuthenticator(security_jwt.NewParser(security_jwt.WithSigningKey(jwt.SigningMethodHS256.Alg(), jwt.SigningMethodHS256))),
 	)
 }
 

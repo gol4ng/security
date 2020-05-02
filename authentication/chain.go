@@ -6,6 +6,10 @@ import (
 	"github.com/gol4ng/security"
 )
 
+var (
+	ErrNoAuthenticationProviderFound = errors.New("no authentication provider found")
+)
+
 type ChainAuthenticator struct {
 	authenticators []security.Authenticator
 }
@@ -29,7 +33,7 @@ func (c *ChainAuthenticator) Authenticate(token security.Token) (security.Token,
 		return nil, err
 	}
 
-	return nil, errors.New("no authentication provider found")
+	return nil, ErrNoAuthenticationProviderFound
 }
 
 func (c *ChainAuthenticator) Support(token security.Token) bool {

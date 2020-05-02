@@ -6,6 +6,10 @@ import (
 	"github.com/gol4ng/security"
 )
 
+var (
+	ErrUserTypeNotSupported = errors.New("user type not supported")
+)
+
 type Authenticator struct {
 	userProvider             security.UserProvider
 	userPasswordTokenChecker TokenChecker
@@ -14,7 +18,7 @@ type Authenticator struct {
 func (o *Authenticator) Authenticate(t security.Token) (security.Token, error) {
 	userPasswordToken, ok := t.(TokenUserPassword)
 	if !ok {
-		return t, errors.New("token type not supported")
+		return t, security.ErrTokenTypeNotSupported
 	}
 
 	user, err := o.userProvider.LoadUserByUsername(userPasswordToken.GetUsername())
@@ -24,7 +28,7 @@ func (o *Authenticator) Authenticate(t security.Token) (security.Token, error) {
 
 	userPassword, ok := user.(UserPassword)
 	if !ok {
-		return t, errors.New("user type not supported")
+		return t, ErrUserTypeNotSupported
 	}
 
 	if err := o.userPasswordTokenChecker.CheckAuthentication(userPassword, userPasswordToken); err != nil {

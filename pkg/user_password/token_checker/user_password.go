@@ -7,19 +7,24 @@ import (
 	"github.com/gol4ng/security/pkg/user_password"
 )
 
+var (
+	ErrUsernameNotMatch = errors.New("username not match")
+	ErrBadCredential    = errors.New("bad credential")
+)
+
 type UserPassword struct {
 	encoder user_password.PasswordEncoder
 }
 
 func (u *UserPassword) CheckAuthentication(user user_password.UserPassword, t user_password.TokenUserPassword) error {
 	if user.GetUsername() != t.GetUsername() {
-		return errors.New("username not match")
+		return ErrUsernameNotMatch
 	}
 
 	if isValid, err := u.encoder.IsPasswordValid(user.GetPassword(), t.GetPassword(), user.GetSalt()); err != nil {
 		return fmt.Errorf("bad credential: %w", err)
 	} else if !isValid {
-		return errors.New("bad credential")
+		return ErrBadCredential
 	}
 	return nil
 }

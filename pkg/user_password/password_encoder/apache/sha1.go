@@ -4,6 +4,8 @@ import (
 	"crypto/sha1"
 	"crypto/subtle"
 	"encoding/base64"
+
+	"github.com/gol4ng/security/pkg/user_password/password_encoder"
 )
 
 func GenerateSHA1FromPassword(password []byte) []byte {
@@ -14,7 +16,7 @@ func GenerateSHA1FromPassword(password []byte) []byte {
 
 func CompareSHA1HashAndPassword(hashedPassword []byte, password []byte) error {
 	if subtle.ConstantTimeCompare(hashedPassword, GenerateSHA1FromPassword(password)) != 1 {
-		return errMismatchedHashAndPassword
+		return password_encoder.ErrMismatchedHashAndPassword
 	}
 	return nil
 }

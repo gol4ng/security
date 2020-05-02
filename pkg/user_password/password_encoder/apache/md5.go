@@ -4,12 +4,11 @@ import (
 	"bytes"
 	"crypto/md5"
 	"crypto/subtle"
-	"errors"
+
+	"github.com/gol4ng/security/pkg/user_password/password_encoder"
 )
 
 //https://httpd.apache.org/docs/2.4/misc/password_encryptions.html
-var errMismatchedHashAndPassword = errors.New("mismatched hash and password")
-
 const (
 	itoa64 = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 	Magic  = "$apr1$"
@@ -71,7 +70,7 @@ func GenerateMD5FromPassword(password []byte, salt []byte, magic []byte) []byte 
 	v := uint(0)
 	bits := uint(0)
 	for _, i := range md5CryptSwaps {
-		v |= (uint(final[i]) << bits)
+		v |= uint(final[i]) << bits
 		for bits = bits + 8; bits > 6; bits -= 6 {
 			result = append(result, itoa64[v&0x3f])
 			v >>= 6
@@ -85,12 +84,12 @@ func GenerateMD5FromPassword(password []byte, salt []byte, magic []byte) []byte 
 func CompareMD5HashAndPassword(hashedPassword []byte, password []byte) error {
 	parts := bytes.SplitN(hashedPassword, []byte("$"), 4)
 	if len(parts) != 4 {
-		return errMismatchedHashAndPassword
+		return password_encoder.ErrMismatchedHashAndPassword
 	}
 	magic := []byte("$" + string(parts[1]) + "$")
 	salt := parts[2]
 	if subtle.ConstantTimeCompare(hashedPassword, GenerateMD5FromPassword(password, salt, magic)) != 1 {
-		return errMismatchedHashAndPassword
+		return password_encoder.ErrMismatchedHashAndPassword
 	}
 	return nil
 }
