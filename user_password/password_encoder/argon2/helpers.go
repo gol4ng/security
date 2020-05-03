@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gol4ng/security/pkg/user_password/password_encoder"
+	"github.com/gol4ng/security/user_password/password_encoder"
 	"golang.org/x/crypto/argon2"
 )
 
