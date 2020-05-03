@@ -13,6 +13,7 @@ type Htpasswd struct {
 }
 
 func (c *Htpasswd) EncodePassword(raw string, salt string) (string, error) {
+	//TODO
 	return raw, nil
 }
 

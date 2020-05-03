@@ -8,8 +8,8 @@ type Anonymous struct {
 	security.Token
 }
 
-func NewToken() *Anonymous {
+func NewAnonymousToken() *Anonymous {
 	return &Anonymous{
-		Token: &Anonymous{},
+		Token: &Token{},
 	}
 }
