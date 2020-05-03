@@ -4,29 +4,31 @@ import (
 	"errors"
 
 	"github.com/gol4ng/security"
+	"github.com/gol4ng/security/user"
+	"github.com/gol4ng/security/user_password"
 )
 
 var (
 	ErrUserTypeNotSupported = errors.New("user type not supported")
 )
 
-type Authenticator struct {
+type UserPasswordAuthenticator struct {
 	userProvider             security.UserProvider
-	userPasswordTokenChecker TokenChecker
+	userPasswordTokenChecker user_password.TokenChecker
 }
 
-func (o *Authenticator) Authenticate(t security.Token) (security.Token, error) {
-	userPasswordToken, ok := t.(TokenUserPassword)
+func (o *UserPasswordAuthenticator) Authenticate(t security.Token) (security.Token, error) {
+	userPasswordToken, ok := t.(user_password.TokenUserPassword)
 	if !ok {
 		return t, security.ErrTokenTypeNotSupported
 	}
 
-	user, err := o.userProvider.LoadUserByUsername(userPasswordToken.GetUsername())
+	u, err := o.userProvider.LoadUserByUsername(userPasswordToken.GetUsername())
 	if err != nil {
 		return nil, err
 	}
 
-	userPassword, ok := user.(UserWithPassword)
+	userPassword, ok := u.(user.UserWithPassword)
 	if !ok {
 		return t, ErrUserTypeNotSupported
 	}
@@ -40,13 +42,13 @@ func (o *Authenticator) Authenticate(t security.Token) (security.Token, error) {
 	return userPasswordToken, nil
 }
 
-func (o *Authenticator) Support(t security.Token) bool {
-	_, support := t.(TokenUserPassword)
+func (o *UserPasswordAuthenticator) Support(t security.Token) bool {
+	_, support := t.(user_password.TokenUserPassword)
 	return support
 }
 
-func NewAuthenticator(provider security.UserProvider, checker TokenChecker) *Authenticator {
-	return &Authenticator{
+func NewUserPasswordAuthenticator(provider security.UserProvider, checker user_password.TokenChecker) *UserPasswordAuthenticator {
+	return &UserPasswordAuthenticator{
 		userProvider:             provider,
 		userPasswordTokenChecker: checker,
 	}

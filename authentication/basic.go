@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/gol4ng/security"
-	"github.com/gol4ng/security/pkg/user_password"
 	"github.com/gol4ng/security/token"
+	"github.com/gol4ng/security/user_password"
 )
 
 var (
@@ -15,7 +15,7 @@ var (
 )
 
 type Basic struct {
-	authenticator *user_password.Authenticator
+	authenticator *UserPasswordAuthenticator
 }
 
 func (o *Basic) Authenticate(t security.Token) (security.Token, error) {
@@ -43,7 +43,7 @@ func (o *Basic) Support(t security.Token) bool {
 
 func NewBasicAuthenticator(provider security.UserProvider, checker user_password.TokenChecker) *Basic {
 	return &Basic{
-		authenticator: user_password.NewAuthenticator(
+		authenticator: NewUserPasswordAuthenticator(
 			provider,
 			checker,
 		),
