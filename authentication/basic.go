@@ -14,11 +14,11 @@ var (
 	ErrInvalidBasicFormat = errors.New("invalid basic format")
 )
 
-type BasicAuthenticator struct {
+type Basic struct {
 	authenticator *user_password.Authenticator
 }
 
-func (o *BasicAuthenticator) Authenticate(t security.Token) (security.Token, error) {
+func (o *Basic) Authenticate(t security.Token) (security.Token, error) {
 	basicToken, ok := t.(*token.RawToken)
 	if !ok {
 		return t, security.ErrTokenTypeNotSupported
@@ -36,13 +36,16 @@ func (o *BasicAuthenticator) Authenticate(t security.Token) (security.Token, err
 	return o.authenticator.Authenticate(user_password.NewToken(values[0], values[1]))
 }
 
-func (o *BasicAuthenticator) Support(t security.Token) bool {
+func (o *Basic) Support(t security.Token) bool {
 	_, support := t.(*token.RawToken)
 	return support
 }
 
-func NewBasicAuthenticator(authenticator *user_password.Authenticator) *BasicAuthenticator {
-	return &BasicAuthenticator{
-		authenticator: authenticator,
+func NewBasicAuthenticator(provider security.UserProvider, checker user_password.TokenChecker) *Basic {
+	return &Basic{
+		authenticator: user_password.NewAuthenticator(
+			provider,
+			checker,
+		),
 	}
 }

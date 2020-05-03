@@ -5,7 +5,7 @@ import (
 	"crypto/md5"
 	"crypto/subtle"
 
-	"github.com/gol4ng/security/pkg/user_password/password_encoder"
+	"github.com/gol4ng/security/user_password/password_encoder"
 )
 
 //https://httpd.apache.org/docs/2.4/misc/password_encryptions.html

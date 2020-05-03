@@ -4,7 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/gol4ng/security/pkg/user_password"
+	"github.com/gol4ng/security/user"
+	"github.com/gol4ng/security/user_password"
 )
 
 var (
@@ -16,7 +17,7 @@ type UserPassword struct {
 	encoder user_password.PasswordEncoder
 }
 
-func (u *UserPassword) CheckAuthentication(user user_password.UserPassword, t user_password.TokenUserPassword) error {
+func (u *UserPassword) CheckAuthentication(user user.UserWithPassword, t user_password.TokenUserPassword) error {
 	if user.GetUsername() != t.GetUsername() {
 		return ErrUsernameNotMatch
 	}

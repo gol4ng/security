@@ -5,7 +5,7 @@ import (
 	"crypto/subtle"
 	"encoding/base64"
 
-	"github.com/gol4ng/security/pkg/user_password/password_encoder"
+	"github.com/gol4ng/security/user_password/password_encoder"
 )
 
 func GenerateSHA1FromPassword(password []byte) []byte {

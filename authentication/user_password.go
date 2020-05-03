@@ -1,4 +1,4 @@
-package user_password
+package authentication
 
 import (
 	"errors"
@@ -26,7 +26,7 @@ func (o *Authenticator) Authenticate(t security.Token) (security.Token, error) {
 		return nil, err
 	}
 
-	userPassword, ok := user.(UserPassword)
+	userPassword, ok := user.(UserWithPassword)
 	if !ok {
 		return t, ErrUserTypeNotSupported
 	}

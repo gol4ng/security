@@ -4,7 +4,7 @@ import (
 	"reflect"
 
 	"github.com/gol4ng/security"
-	"github.com/gol4ng/security/pkg/user_password"
+	"github.com/gol4ng/security/user_password"
 )
 
 type Factory struct {

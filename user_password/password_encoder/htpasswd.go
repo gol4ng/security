@@ -3,8 +3,8 @@ package password_encoder
 import (
 	"strings"
 
-	"github.com/gol4ng/security/pkg/user_password/password_encoder/apache"
-	"github.com/gol4ng/security/pkg/user_password/password_encoder/argon2"
+	"github.com/gol4ng/security/user_password/password_encoder/apache"
+	"github.com/gol4ng/security/user_password/password_encoder/argon2"
 	"golang.org/x/crypto/bcrypt"
 )
 
