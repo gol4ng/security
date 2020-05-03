@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gol4ng/security/user_password/password_encoder"
 	"golang.org/x/crypto/argon2"
 )
 
@@ -43,7 +42,7 @@ func generateRandomBytes(n uint32) ([]byte, error) {
 func decodeHash(encodedHash string) (p *params, salt, hash []byte, err error) {
 	vals := strings.Split(encodedHash, "$")
 	if len(vals) != 6 {
-		return nil, nil, nil, password_encoder.ErrInvalidHash
+		return nil, nil, nil, ErrInvalidHash
 	}
 
 	var version int

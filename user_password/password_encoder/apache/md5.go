@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"crypto/md5"
 	"crypto/subtle"
-
-	"github.com/gol4ng/security/user_password/password_encoder"
 )
 
 //https://httpd.apache.org/docs/2.4/misc/password_encryptions.html
@@ -84,12 +82,12 @@ func GenerateMD5FromPassword(password []byte, salt []byte, magic []byte) []byte 
 func CompareMD5HashAndPassword(hashedPassword []byte, password []byte) error {
 	parts := bytes.SplitN(hashedPassword, []byte("$"), 4)
 	if len(parts) != 4 {
-		return password_encoder.ErrMismatchedHashAndPassword
+		return ErrMismatchedHashAndPassword
 	}
 	magic := []byte("$" + string(parts[1]) + "$")
 	salt := parts[2]
 	if subtle.ConstantTimeCompare(hashedPassword, GenerateMD5FromPassword(password, salt, magic)) != 1 {
-		return password_encoder.ErrMismatchedHashAndPassword
+		return ErrMismatchedHashAndPassword
 	}
 	return nil
 }
