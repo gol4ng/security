@@ -1,9 +1,11 @@
 package user_password
 
 import (
+	"context"
+
 	"github.com/gol4ng/security/user"
 )
 
 type TokenChecker interface {
-	CheckAuthentication(user user.UserWithPassword, t TokenUserPassword) error
+	CheckAuthentication(ctx context.Context, user user.UserWithPassword, t TokenUserPassword) error
 }

@@ -8,11 +8,13 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-func GenerateIDFromPassword(password []byte, p *params) (encodedHash string, err error) {
+func GenerateIDFromPassword(password []byte, salt []byte, p *params) (encodedHash string, err error) {
 	// Generate a cryptographically secure random salt.
-	salt, err := generateRandomBytes(p.saltLength)
-	if err != nil {
-		return "", err
+	if len(salt) == 0 {
+		salt, err = generateRandomBytes(p.saltLength)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	// Pass the plaintext password, salt and parameters to the argon2.IDKey
@@ -31,7 +33,7 @@ func GenerateIDFromPassword(password []byte, p *params) (encodedHash string, err
 }
 
 func CompareIDPasswordAndHash(hashedPassword []byte, password []byte) error {
-	p, salt, hash, err := decodeHash(string(hashedPassword))
+	p, salt, hash, err := DecodeHash(string(hashedPassword))
 	if err != nil {
 		return err
 	}

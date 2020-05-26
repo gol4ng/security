@@ -1,6 +1,7 @@
 package token_checker
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -17,12 +18,12 @@ type UserPassword struct {
 	encoder user_password.PasswordEncoder
 }
 
-func (u *UserPassword) CheckAuthentication(user user.UserWithPassword, t user_password.TokenUserPassword) error {
+func (u *UserPassword) CheckAuthentication(ctx context.Context, user user.UserWithPassword, t user_password.TokenUserPassword) error {
 	if user.GetUsername() != t.GetUsername() {
 		return ErrUsernameNotMatch
 	}
 
-	if isValid, err := u.encoder.IsPasswordValid(user.GetPassword(), t.GetPassword(), user.GetSalt()); err != nil {
+	if isValid, err := u.encoder.IsPasswordValid(ctx, user.GetPassword(), t.GetPassword(), user.GetSalt()); err != nil {
 		return fmt.Errorf("bad credential: %w", err)
 	} else if !isValid {
 		return ErrBadCredential

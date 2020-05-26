@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"context"
 	"errors"
 
 	"github.com/gol4ng/security"
@@ -17,13 +18,13 @@ type UserPasswordAuthenticator struct {
 	userPasswordTokenChecker user_password.TokenChecker
 }
 
-func (o *UserPasswordAuthenticator) Authenticate(t security.Token) (security.Token, error) {
+func (o *UserPasswordAuthenticator) Authenticate(ctx context.Context, t security.Token) (security.Token, error) {
 	userPasswordToken, ok := t.(user_password.TokenUserPassword)
 	if !ok {
 		return t, security.ErrTokenTypeNotSupported
 	}
 
-	u, err := o.userProvider.LoadUserByUsername(userPasswordToken.GetUsername())
+	u, err := o.userProvider.LoadUserByUsername(ctx, userPasswordToken.GetUsername())
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +34,7 @@ func (o *UserPasswordAuthenticator) Authenticate(t security.Token) (security.Tok
 		return t, ErrUserTypeNotSupported
 	}
 
-	if err := o.userPasswordTokenChecker.CheckAuthentication(userPassword, userPasswordToken); err != nil {
+	if err := o.userPasswordTokenChecker.CheckAuthentication(ctx, userPassword, userPasswordToken); err != nil {
 		return nil, err
 	}
 
@@ -42,7 +43,7 @@ func (o *UserPasswordAuthenticator) Authenticate(t security.Token) (security.Tok
 	return userPasswordToken, nil
 }
 
-func (o *UserPasswordAuthenticator) Support(t security.Token) bool {
+func (o *UserPasswordAuthenticator) Support(ctx context.Context, t security.Token) bool {
 	_, support := t.(user_password.TokenUserPassword)
 	return support
 }

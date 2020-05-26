@@ -1,5 +1,9 @@
 package security
 
+import (
+	"context"
+)
+
 type UserProvider interface {
-	LoadUserByUsername(username string) (User, error)
+	LoadUserByUsername(ctx context.Context, username string) (User, error)
 }

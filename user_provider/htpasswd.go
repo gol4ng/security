@@ -1,6 +1,8 @@
 package user_provider
 
 import (
+	"context"
+
 	"github.com/gol4ng/security"
 	"github.com/gol4ng/security/user"
 	"github.com/gol4ng/security/user_provider/file"
@@ -11,11 +13,18 @@ type Htpasswd struct {
 	file     *file.Htpasswd
 }
 
-func (i *Htpasswd) LoadUserByUsername(username string) (security.User, error) {
+func (i *Htpasswd) Load() error {
+	var err error
+	i.file, err = file.OpenHtpasswd(i.filename)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (i *Htpasswd) LoadUserByUsername(_ context.Context, username string) (security.User, error) {
 	if i.file == nil {
-		var err error
-		i.file, err = file.OpenHtpasswd(i.filename)
-		if err != nil {
+		if err := i.Load(); err != nil {
 			return nil, err
 		}
 	}

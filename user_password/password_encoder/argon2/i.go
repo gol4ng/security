@@ -8,11 +8,13 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-func GenerateIFromPassword(password []byte, p *params) (encodedHash string, err error) {
+func GenerateIFromPassword(password []byte, salt []byte, p *params) (encodedHash string, err error) {
 	// Generate a cryptographically secure random salt.
-	salt, err := generateRandomBytes(p.saltLength)
-	if err != nil {
-		return "", err
+	if len(salt) == 0 {
+		salt, err = generateRandomBytes(p.saltLength)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	// Pass the plaintext password, salt and parameters to the argon2.Key
@@ -25,13 +27,13 @@ func GenerateIFromPassword(password []byte, p *params) (encodedHash string, err 
 	b64Hash := base64.RawStdEncoding.EncodeToString(hash)
 
 	// Return a string using the standard encoded hash representation.
-	encodedHash = fmt.Sprintf("$argon2id$v=%d$m=%d,t=%d,p=%d$%s$%s", argon2.Version, p.memory, p.iterations, p.parallelism, b64Salt, b64Hash)
+	encodedHash = fmt.Sprintf("$argon2i$v=%d$m=%d,t=%d,p=%d$%s$%s", argon2.Version, p.memory, p.iterations, p.parallelism, b64Salt, b64Hash)
 
 	return encodedHash, nil
 }
 
 func CompareIPasswordAndHash(hashedPassword []byte, password []byte) error {
-	p, salt, hash, err := decodeHash(string(hashedPassword))
+	p, salt, hash, err := DecodeHash(string(hashedPassword))
 	if err != nil {
 		return err
 	}

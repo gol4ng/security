@@ -1,9 +1,11 @@
 package oauth2
 
 import (
+	"context"
 	"errors"
 
 	"github.com/gol4ng/security"
+	security_oauth "github.com/gol4ng/security/pkg/oauth2/token"
 	"golang.org/x/oauth2"
 )
 
@@ -15,8 +17,8 @@ type Authenticator struct {
 	userProvider UserProvider
 }
 
-func (a Authenticator) Authenticate(t security.Token) (authenticatedToken security.Token, err error) {
-	token, ok := t.(*Token)
+func (a Authenticator) Authenticate(_ context.Context, t security.Token) (authenticatedToken security.Token, err error) {
+	token, ok := t.(*security_oauth.OauthToken)
 	if !ok {
 		return t, security.ErrTokenTypeNotSupported
 	}
@@ -37,8 +39,8 @@ func (a Authenticator) Authenticate(t security.Token) (authenticatedToken securi
 	return token, nil
 }
 
-func (a *Authenticator) Support(t security.Token) bool {
-	_, support := t.(*Token)
+func (a *Authenticator) Support(_ context.Context, t security.Token) bool {
+	_, support := t.(*security_oauth.OauthToken)
 	return support
 }
 
@@ -60,7 +62,7 @@ func NewAuthenticator(options ...AuthenticatorOption) *Authenticator {
 	}).apply(options...)
 }
 
-func WithUserGetter(getter UserProvider) AuthenticatorOption {
+func WithUserProvider(getter UserProvider) AuthenticatorOption {
 	return func(authenticator *Authenticator) {
 		authenticator.userProvider = getter
 	}

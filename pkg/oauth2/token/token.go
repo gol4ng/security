@@ -5,18 +5,18 @@ import (
 	"golang.org/x/oauth2"
 )
 
-type Token struct {
+type OauthToken struct {
 	security_token.Token
 
 	oauth2Token *oauth2.Token
 }
 
-func (t *Token) GetToken() *oauth2.Token {
+func (t *OauthToken) GetToken() *oauth2.Token {
 	return t.oauth2Token
 }
 
-func NewToken(oauth2Token *oauth2.Token) *Token {
-	return &Token{
+func NewToken(oauth2Token *oauth2.Token) *OauthToken {
+	return &OauthToken{
 		oauth2Token: oauth2Token,
 	}
 }

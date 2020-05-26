@@ -1,6 +1,8 @@
 package password_encoder
 
 import (
+	"context"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -8,7 +10,7 @@ type Bcrypt struct {
 	cost int
 }
 
-func (c *Bcrypt) EncodePassword(raw string, salt string) (string, error) {
+func (c *Bcrypt) EncodePassword(_ context.Context, raw string, salt string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(raw+salt), c.cost)
 	if err != nil {
 		return "", err
@@ -16,7 +18,7 @@ func (c *Bcrypt) EncodePassword(raw string, salt string) (string, error) {
 	return string(hash), nil
 }
 
-func (c *Bcrypt) IsPasswordValid(encoded string, raw string, salt string) (bool, error) {
+func (c *Bcrypt) IsPasswordValid(_ context.Context, encoded string, raw string, salt string) (bool, error) {
 	err := bcrypt.CompareHashAndPassword([]byte(raw), []byte(raw+salt))
 	return err == nil, err
 }

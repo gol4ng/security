@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"context"
 	"encoding/base64"
 	"errors"
 
@@ -8,25 +9,25 @@ import (
 	"github.com/gol4ng/security/token"
 )
 
-type TokenTransformer func(rawToken *token.RawToken) (*token.RawToken, error)
+type TokenTransformer func(ctx context.Context, rawToken *token.RawToken) (security.Token, error)
 
 type RawAuthenticatorWrapper struct {
 	authenticator    security.Authenticator
 	tokenTransformer TokenTransformer
 }
 
-func (r *RawAuthenticatorWrapper) Authenticate(t security.Token) (security.Token, error) {
+func (r *RawAuthenticatorWrapper) Authenticate(ctx context.Context, t security.Token) (security.Token, error) {
 	rawToken, ok := t.(*token.RawToken)
 	if !ok {
 		return t, errors.New("token type not supported")
 	}
 
-	newToken, err := r.tokenTransformer(rawToken)
+	newToken, err := r.tokenTransformer(ctx, rawToken)
 	if err != nil {
 		return t, err
 	}
 
-	return r.authenticator.Authenticate(newToken)
+	return r.authenticator.Authenticate(ctx, newToken)
 }
 
 func (r *RawAuthenticatorWrapper) Support(t security.Token) bool {
@@ -58,7 +59,7 @@ func WithTokenTransformer(transformer TokenTransformer) AuthenticatorOption {
 	}
 }
 
-func RawTokenBase64Decode(rawToken *token.RawToken) (*token.RawToken, error) {
+func RawTokenBase64Decode(ctx context.Context, rawToken *token.RawToken) (security.Token, error) {
 	decoded, err := base64.StdEncoding.DecodeString(rawToken.GetRaw())
 	if err != nil {
 		return rawToken, err

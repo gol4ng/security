@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"context"
 	"errors"
 
 	"github.com/gol4ng/security"
@@ -14,16 +15,16 @@ type ChainAuthenticator struct {
 	authenticators []security.Authenticator
 }
 
-func (c *ChainAuthenticator) Authenticate(token security.Token) (security.Token, error) {
+func (c *ChainAuthenticator) Authenticate(ctx context.Context, token security.Token) (security.Token, error) {
 	var authenticatedToken security.Token
 	var err error
 
 	for _, authenticator := range c.authenticators {
-		if !authenticator.Support(token) {
+		if !authenticator.Support(ctx, token) {
 			continue
 		}
 
-		authenticatedToken, err = authenticator.Authenticate(token)
+		authenticatedToken, err = authenticator.Authenticate(ctx, token)
 		if err == nil {
 			return authenticatedToken, nil
 		}
@@ -36,17 +37,17 @@ func (c *ChainAuthenticator) Authenticate(token security.Token) (security.Token,
 	return nil, ErrNoAuthenticationProviderFound
 }
 
-func (c *ChainAuthenticator) Support(token security.Token) bool {
+func (c *ChainAuthenticator) Support(ctx context.Context, token security.Token) bool {
 	for _, authenticator := range c.authenticators {
-		if authenticator.Support(token) {
+		if authenticator.Support(ctx, token) {
 			return true
 		}
 	}
 	return false
 }
 
-func NewChainAuthenticator(providers ...security.Authenticator) *ChainAuthenticator {
+func NewChainAuthenticator(authenticators ...security.Authenticator) *ChainAuthenticator {
 	return &ChainAuthenticator{
-		authenticators: providers,
+		authenticators: authenticators,
 	}
 }

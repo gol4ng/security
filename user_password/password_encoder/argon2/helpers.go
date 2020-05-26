@@ -11,16 +11,9 @@ import (
 )
 
 var (
-	ErrIncompatibleVersion       = errors.New("incompatible version of argon2")
+	ErrIncompatibleVersion = errors.New("incompatible version of argon2")
 )
 
-//	p := &params{
-//		memory:      64 * 1024,
-//		iterations:  3,
-//		parallelism: 2,
-//		saltLength:  16,
-//		keyLength:   32,
-//	}
 type params struct {
 	memory      uint32
 	iterations  uint32
@@ -39,7 +32,7 @@ func generateRandomBytes(n uint32) ([]byte, error) {
 	return b, nil
 }
 
-func decodeHash(encodedHash string) (p *params, salt, hash []byte, err error) {
+func DecodeHash(encodedHash string) (p *params, salt, hash []byte, err error) {
 	vals := strings.Split(encodedHash, "$")
 	if len(vals) != 6 {
 		return nil, nil, nil, ErrInvalidHash

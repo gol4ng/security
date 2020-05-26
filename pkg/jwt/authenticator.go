@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"context"
 	"errors"
 
 	"github.com/dgrijalva/jwt-go"
@@ -19,7 +20,7 @@ type Authenticator struct {
 	usernameGetter UsernameGetter
 }
 
-func (a Authenticator) Authenticate(t security.Token) (security.Token, error) {
+func (a Authenticator) Authenticate(_ context.Context, t security.Token) (security.Token, error) {
 	var outputToken *Token
 	rawToken, ok := t.(*token.RawToken)
 	if !ok {
@@ -47,7 +48,7 @@ func (a Authenticator) Authenticate(t security.Token) (security.Token, error) {
 	return outputToken, nil
 }
 
-func (a *Authenticator) Support(t security.Token) bool {
+func (a *Authenticator) Support(_ context.Context, t security.Token) bool {
 	_, support := t.(*token.RawToken)
 	return support
 }
