@@ -15,74 +15,19 @@ var (
 	ErrInvalidBasicFormat = errors.New("invalid basic format")
 )
 
-type Basic struct {
-	authenticator *UserPasswordAuthenticator
-}
-
-func (o *Basic) Authenticate(ctx context.Context, t security.Token) (security.Token, error) {
-	basicToken, ok := t.(*token.RawToken)
-	if !ok {
-		return t, security.ErrTokenTypeNotSupported
-	}
-
-	decoded, err := base64.StdEncoding.DecodeString(basicToken.GetRaw())
+func RawTokenBasicDecode(_ context.Context, rawToken *token.RawToken) (security.Token, error) {
+	decoded, err := base64.StdEncoding.DecodeString(rawToken.GetRaw())
 	if err != nil {
-		return t, err
+		return rawToken, err
 	}
 	values := strings.Split(string(decoded), ":")
 	if len(values) != 2 {
-		return t, ErrInvalidBasicFormat
+		return rawToken, ErrInvalidBasicFormat
 	}
 
-	return o.authenticator.Authenticate(ctx, user_password.NewToken(values[0], values[1]))
+	return user_password.NewToken(values[0], values[1]), nil
 }
 
-func (o *Basic) Support(_ context.Context, t security.Token) bool {
-	_, support := t.(*token.RawToken)
-	return support
-}
-
-func NewBasicAuthenticator(provider security.UserProvider, checker user_password.TokenChecker) *Basic {
-	return &Basic{
-		authenticator: NewUserPasswordAuthenticator(
-			provider,
-			checker,
-		),
-	}
-}
-
-type Basic2 struct {
-	authenticator *UserPasswordAuthenticator
-}
-
-func (o *Basic2) Authenticate(ctx context.Context, t security.Token) (security.Token, error) {
-	basicToken, ok := t.(*token.RawToken)
-	if !ok {
-		return t, security.ErrTokenTypeNotSupported
-	}
-
-	decoded, err := base64.StdEncoding.DecodeString(basicToken.GetRaw())
-	if err != nil {
-		return t, err
-	}
-	values := strings.Split(string(decoded), ":")
-	if len(values) != 2 {
-		return t, ErrInvalidBasicFormat
-	}
-
-	return o.authenticator.Authenticate(ctx, user_password.NewToken(values[0], values[1]))
-}
-
-func (o *Basic2) Support(_ context.Context, t security.Token) bool {
-	_, support := t.(*token.RawToken)
-	return support
-}
-
-func NewBasic2Authenticator(provider security.UserProvider, checker user_password.TokenChecker) *Basic {
-	return &Basic{
-		authenticator: NewUserPasswordAuthenticator(
-			provider,
-			checker,
-		),
-	}
+func NewBasicAuthenticator(provider security.UserProvider, checker user_password.TokenChecker) *RawAuthenticatorWrapper {
+	return NewRawAuthenticatorWrapper(NewUserPasswordAuthenticator(provider, checker), WithTokenTransformer(RawTokenBasicDecode))
 }
