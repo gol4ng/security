@@ -26,7 +26,7 @@ func main() {
 
 	// Create a in memory user provider
 	provider := user_provider.NewInMemory(map[string]security.User{
-		"user1": user.NewUserPassword("user1", mustEncodePassword(passwordEncoder, "user1password", "user1Salt"), "user1Salt"),
+		"user1": user.NewUserPassword("user1", mustEncodePassword(ctx, passwordEncoder, "user1password", "user1Salt"), "user1Salt"),
 		"user2": user.NewUser("user2"),
 	})
 
@@ -53,8 +53,8 @@ func main() {
 	printResult(t, err)
 }
 
-func mustEncodePassword(passwordEncoder user_password.PasswordEncoder, password string, salt string) string {
-	encoded, err := passwordEncoder.EncodePassword(password, salt)
+func mustEncodePassword(ctx context.Context, passwordEncoder user_password.PasswordEncoder, password string, salt string) string {
+	encoded, err := passwordEncoder.EncodePassword(ctx, password, salt)
 	if err != nil {
 		panic(err)
 	}

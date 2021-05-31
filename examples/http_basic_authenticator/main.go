@@ -29,11 +29,11 @@ func main() {
 	passwordEncoder := password_encoder.NewHtpasswd()
 
 	// Example of encoding password
-	encoded, err := passwordEncoder.EncodePassword("user1password", "")
+	encoded, err := passwordEncoder.EncodePassword(ctx, "user1password", "")
 	fmt.Printf("Encode password with MD5 :%s %s\n", encoded, err)
-	encoded, err = passwordEncoder.EncodePassword("{SHA}user2password", "")
+	encoded, err = passwordEncoder.EncodePassword(ctx, "{SHA}user2password", "")
 	fmt.Printf("Encode password with SHA1 :%s %s\n", encoded, err)
-	encoded, err = passwordEncoder.EncodePassword("$2a$user3password", "")
+	encoded, err = passwordEncoder.EncodePassword(ctx, "$2a$user3password", "")
 	fmt.Printf("Encode password with Bcrypt :%s %s\n", encoded, err)
 	//encoded, err = passwordEncoder.EncodePassword("$argon2i$v=19$m=16,t=2,p=1$user4password", "")// TODO IMPROVE password encoding
 	//fmt.Printf("Encode password with Argon2 :%s %s\n", encoded, err)
